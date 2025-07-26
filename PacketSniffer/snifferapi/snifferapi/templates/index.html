@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Packet Sniffer</title>
+</head>
+
+<body>
+  <h1>Packet Sniffer Output</h1>
+  <pre id="output"></pre>
+
+  <script>
+    const output = document.getElementById("output");
+
+    const socket = new WebSocket("ws://127.0.0.1:8000/ws/connect");
+
+    socket.onopen = function (e) {
+      output.innerText += "✅ WebSocket connected\n";
+    };
+
+    socket.onmessage = function (event) {
+      const data = JSON.parse(event.data);
+
+      if (data.type === "connection_established") {
+        output.innerText += `🔗 ${data.message}\n`;
+      } else if (data.type === "packet") {
+        // Pretty print packet
+        output.innerText += `📦 Packet: ${JSON.stringify(data.data)}\n`;
+      }
+    };
+
+    socket.onerror = function (error) {
+      output.innerText += `❌ WebSocket Error: ${error.message || error}\n`;
+    };
+
+    socket.onclose = function () {
+      output.innerText += "🔌 WebSocket disconnected\n";
+    };
+  </script>
+</body>
+
+</html>
